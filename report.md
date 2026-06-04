@@ -1,8 +1,8 @@
 # Decision Agent: Research Report
 
-> **Version:** v17 (17 papers)
-> **Last Updated:** 2026-05-10
-> **Papers:** [01](notes/01_co_evolving_llm_decision_and_skill.md), [02](notes/02_graph_of_agents_a_graph_based.md), [03](notes/03_why_reasoning_fails_to_plan_a.md), [04](notes/04_rethinking_the_value_of_multi_agent.md), [05](notes/05_agent_as_a_graph_knowledge_graph.md), [06](notes/06_why_do_multi_agent_llm_systems.md), [07](notes/07_mcp_zero_active_tool_discovery_for.md), [08](notes/08_simulating_human_cognition_heartbeat_driven_autonomous.md), [09](notes/09_llm_based_multi_agent_blackboard_system.md), [10](notes/10_collaborative_memory_multi_user_memory_sharing.md), [11](notes/11_retrieval_models_aren_t_tool_savvy.md), [12](notes/12_automated_composition_of_agents_a_knapsack.md), [13](notes/13_toolomni_enabling_open_world_tool_use.md), [16](notes/16_g_memory_tracing_hierarchical_memory_for.md), [17](notes/17_fademem_biologically_inspired_forgetting_for_efficient.md), [18](notes/18_governed_memory_a_production_architecture_for.md), [19](notes/19_think_before_you_act_a_neurocognitive.md)
+> **Version:** v19 (19 papers)
+> **Last Updated:** 2026-06-04
+> **Papers:** [01](notes/01_co_evolving_llm_decision_and_skill.md), [02](notes/02_graph_of_agents_a_graph_based.md), [03](notes/03_why_reasoning_fails_to_plan_a.md), [04](notes/04_rethinking_the_value_of_multi_agent.md), [05](notes/05_agent_as_a_graph_knowledge_graph.md), [06](notes/06_why_do_multi_agent_llm_systems.md), [07](notes/07_mcp_zero_active_tool_discovery_for.md), [08](notes/08_simulating_human_cognition_heartbeat_driven_autonomous.md), [09](notes/09_llm_based_multi_agent_blackboard_system.md), [10](notes/10_collaborative_memory_multi_user_memory_sharing.md), [11](notes/11_retrieval_models_aren_t_tool_savvy.md), [12](notes/12_automated_composition_of_agents_a_knapsack.md), [13](notes/13_toolomni_enabling_open_world_tool_use.md), [16](notes/16_g_memory_tracing_hierarchical_memory_for.md), [17](notes/17_fademem_biologically_inspired_forgetting_for_efficient.md), [18](notes/18_governed_memory_a_production_architecture_for.md), [19](notes/19_think_before_you_act_a_neurocognitive.md), [20](notes/20_anticipate_and_learn_unleashing_idle_time.md), [21](notes/21_agentinit_initializing_llm_based_multi_agent.md)
 > **Thesis:** [.researcher/thesis.md](.researcher/thesis.md)
 
 ---
@@ -69,6 +69,20 @@ Heartbeat 机制 [8] 将 LLM 置于主动唤醒循环中：固定间隔检查任
 **PAGRL 作为 governance-aware bounded autonomy 的工程模板** [19]
 
 [19] PAGRL 直接为 thesis 已决议的 goal 2 治理张力提供工程模板：(a) **显式调度策略来源** ≈ PAGRL Stage 1 "Intent formation" 必须可追溯到具体调度入口（cron / 用户授权 / Composer plan）——任何 agent 自身产生的 intrinsic goal（如 [8] HSC Dream Mode 的"自主目标设定"）应在 PAGRL Stage 3 被识别为"未授权 intent"并 ESCALATE；(b) **TraceAI-first** ≈ PAGRL Stage 4 强制 trace 在动作执行**之前**写入；(c) **ISF + HITL** ≈ ESCALATE 的"不可逆 → 必经人审"完全对应"外部副作用必须 HITL"。本论文未直接讨论 HSC，但其 ESCALATE 通路在结构上正是 [8] Dream Mode autonomous goal generation 应当落入的治理出口——"Heartbeat + Cron 提供调度入口；Reflection 仅生成建议、所有衍生 action 都经 PAGRL"。**关键工程边界**：[19] N=40 案例（Wilson 区间 [83.5%, 99.4%]）+ 0.65s/动作延迟 + 7 条规则全量注入——50+ 规则规模的延迟与 token 曲线未量化 [19: §5.3, §5.1]。
+
+**ProAct：被严格评测的主动 Runtime，但落在"未治理主动端"** [20]
+
+[20] ProAct 是 corpus 中**首篇为 goal 2"主动 Runtime"提供严格评测**的工作，补齐 [8] HSC（合成 LSTM、零 LLM、无基线、证据为零）缺失的一切：用 idle-time compute 在交互间隙预测并预取"可能的未来用户需求"，由 Future-State Prediction（local scenario / related expansion / memory-gap augmentation 三来源生成候选 Zt）+ Idle-Time Acquisition（value gate S(z)=Σw·指标 评分 → S(z)≥θval 才即时检索 → artifact 写回 memory，按 {push, queue, store} 三态投递）两模块驱动。ProActEval（200 场景 / 40 域）：Directed Idle 相对 Reactive 把 T100 降 14.8%、User Effort 降 11.7%、Hallucination Rate 降 28.1%（0.132→0.095），Anticipation Recall 0.000→0.428，代价是 111.8k active token/场景 [20: §3.1-3.4, Table 2]。
+
+**消融是关键发现**：增益来自"预测方向"而非"后台搜索本身"——Undirected Idle（有 acquisition 无 prediction，≈ 朴素 cron 触发 ReAct 背景探索）花 69.8k token 仅把 T100 降 0.9%、Anticipation Recall 保持 0；改造自公开 ProactiveAgent 的 prompting baseline 在 1,572 可预测需求中只命中 32 个 [20: §5.1]。这直接更新了 thesis 可证伪点"学术稀缺 = 机会窗口"（见可证伪点追踪 F23）：朴素 baseline 不足以解决主动预测，"预测方向"是真增益——但学术解法昂贵（111.8k token/场景）且未治理。
+
+**但 ProAct 落在 thesis 明确拒绝的"未治理主动端"**：它以"无需用户预定义任务或日程、自主推断未发声需求"为卖点（§2），正是 thesis 已决议禁止的"intrinsic goal generation 进入生产路径"。Decision Agent 的工程取舍是**采纳机制、改造触发**：
+
+- Future-State Prediction + memory-gap augmentation 作为 Reflection"建议生成层"算法骨架，但 intent 来源从"自主推断"改为 cron / 用户授权 / Composer plan 派生；
+- {push, queue, store} 三态天然对齐治理分轨：store（静默进 memory，无外部副作用）可自主；push（外部可见动作）必经 [19] PAGRL ESCALATE + HITL；
+- ProAct 缺的 TraceAI-first 须补——其 provenance 仅记"检索了什么"，须扩为"谁授权 + 先写审计再执行"。
+
+这与 thesis 的 OpenClaw 边界判据形成第二维轴（**触发自主性**）：OpenClaw/Hermes（低，cron + 用户定义触发）— Decision Agent 治理边界内（中，全治理）— ProAct（高，无治理）。Decision Agent 的差异化因此是：在"触发自主性"上不追求 ProAct 的极端，在"治理深度"上超越三者——用 ProAct 预测机制 + OpenClaw 显式触发约束 + [18]/[19] 治理底座组合 [20: §2]。证据强度 [med]——benchmark + 双消融 + bootstrap CI + 公开基线对比，但 closed-world 合成 benchmark + 同源 judge + 跨评测换模型（proactivity gpt-4o / memory Qwen2.5-7B）+ gating 全为手工常数 + 自主 intent 无治理出口，作为机制骨架与评测协议参考足够，作为"企业场景净收益"证据不充分。
 
 ---
 
@@ -149,6 +163,12 @@ MCP-Zero [7] 将工具加载从"启动时预注入"改为"运行时按需发现"
 
 关键结果：在 AgentBench 上，Knapsack 选择的 agent 组合比随机基线高 22.1%，比贪心选择高 8.7% [12: §4]。沙盒验证的代价：design-time 成本是 baseline 的 3.2×，但消除了运行时失败的尾部风险。
 
+**AgentInit：init-time 团队选择的第二条算法基线** [21]
+
+[21] 与 [12] 互为 `competes-with`：两者都解 Composer 的核心子问题"从候选能力池选哪几个组成 team"，但目标函数不同。[12] 是**价值/成本约束 knapsack + design-time sandbox 实测**；[21] AgentInit 是**relevance/diversity 双目标 Pareto**——先用 Planner/Formatter/Observer 三 agent 迭代 K=3 轮生成标准化 JSON 候选 agent，再枚举所有规模 r∈[1,5] 的子集，按 relevance（团队 agent 描述与 query 平均余弦）与 diversity（描述向量相似度矩阵特征值的 Vendi Score）取 Pareto 非支配集，最后 Selector LLM 选一个团队 [21: §3.2-3.3]。在 Complete Graph 上 Qwen2.5-72B 91.3 / DeepSeek-V3 93.7，超 SOTA 初始化方法（AutoAgents/EvoAgent）1.2/0.9 点，跨 Chain/Star/Layered/AutoGen 四框架均最佳 [21: §4.2, Table 1/3]。
+
+**对 Composer 的两个可操作启示**：(1) **团队选择不应只看 relevance，须显式约束 diversity**——AgentInit 的 None（不选择，用全候选）−1.1 点、Random（随机选同样数量）仍劣消融，量化了"只去重不够、需双目标平衡"，且增益来自**选择策略**而非单纯缩规模 [21: §5.1, Table 4]；这与 [4] OneFlow（同质场景折叠到 1）、[6] MAST（冗余 agent → FM-1.3 step repetition）形成三角，把"Decision Agent 默认应倾向更小、经显式选择的 team"工程取向证据强度抬到 [med]。(2) **但两个度量在企业治理 + 5k–10k 规模下都需替换**——AgentInit 枚举式精确 Pareto 仅在 Nmax≤5、候选池极小可行（平均团队 2.2–2.7），NSGA-II 仅在 pop=100 验证，与 [9] broadcast 的线性成本是同类规模断层，Composer 必须保留 BKN 预过滤回退；且其 relevance=无类型句向量余弦正是 thesis Taste 中"纯嵌入 vs BKN 语义结构化解耦"的对立面（奖励"复述查询"而非"贡献求解能力"，无构造效度），应替换为 BKN-anchored capability 类型化匹配（对照 [5] +14.9% Recall@5），把 AgentInit 嵌入 relevance 当**对照下界**。证据强度 [med-low]——消融完整但核心增益微弱（≤1.2 点、近饱和 benchmark、无显著性检验）、"显著省 token"对默认 Nmax=5 不成立、9/10 benchmark 是单轮 QA（唯一交互式 ScienceWorld 增益仅 +0.86，长链任务未测）。
+
 **图路由对 Composer 的含义** [2]
 
 [2] 的拓扑配置能力是 Composer 的必要扩展：选定 agent 组合后，还需要选定通信拓扑。层次图（Supervisor + Workers）在任务规模 ≤ 8 个 worker 时最优；完全图在创意发散任务中优于层次图 [2: §4.2]。Composer 的输出应包含 (agent 集合, 拓扑类型, 连接权重) 三元组。
@@ -200,6 +220,10 @@ G-Memory [16] 的独立贡献（在 Goal 3 之外）：Insight Graph 层在跨�
 **关键工程边界**：(a) 评测全部合成或小规模（30 天窗口对长期遗忘支撑不足、LTI-Bench 构造细节零披露）；(b) ≥13 个旋钮，重要性权重 α/β/γ 数值未公开，迁移到 BKN 工具集需重做 grid search；(c) 写入路径每条新记忆同步 LLM 调用，5k–10k 工具 + 数百并发用户场景下吞吐瓶颈未量化；(d) contradictory 误分率 33.8%——把 contradictory 错判为 compatible 让旧错误信息共存沉积，企业合规场景需"BKN-anchored 规则 + LLM 兜底"分轨；(e) 单 agent 单用户假设，多租户独立衰减完全空白。
 
 **[1] 的证据关系**：Co-Evolving [1] 的技能库演化（SkillBank + EvolutionModule）与 [16] 在机制上相似（跨任务积累），但 [1] 针对单 agent 技能，[16] 针对 MAS 协作模式。两者可作为 goal 5 "演化"机制的不同粒度：[1] 演化工具调用序列，[16] 演化 agent 间协作策略。FadeMem 的访问频率项 β·f/(1+f) 也可作为 [1] 技能库的剪枝候选规则，但 [1] 论文未提此问题。
+
+**ProAct memory-gap augmentation：双向 lifecycle 的主动写入端** [20]
+
+[17] FadeMem 提供"哪些记忆该衰减剔除"（lifecycle 的减项）。[20] ProAct 的 memory-gap augmentation 提供互补的另一端：memory 维护识别 stale / incomplete / weakly-supported / missing 知识时，把这些 gap 转为候选未来需求加入 acquisition 目标（lifecycle 的增项）[20: §3.3]。两者合起来构成 thesis goal 5"记忆不无限膨胀 + 经验继承"所需的**双向 lifecycle**——衰减剔除 + 主动补全。ProAct 的增量抽取管线（profile_updates / updated_summary / key_info / user_sentiment / extracted_facts，Appendix J）为 Decision Agent build_memory/search_memory 基础链路提供字段级参考。但 ProAct 是**扁平 User 级记忆**——无 Role/Org 层级、无 [10] Collaborative Memory 的多用户访问控制，其机制须被 thesis 的层级化 + 治理 schema 包裹后才可用。
 
 **组织级治理 + schema lifecycle：Governed Memory 的填空** [18]
 
@@ -292,10 +316,14 @@ G-Memory [16] 的独立贡献（在 Goal 3 之外）：Insight Graph 层在跨�
 | F20 | PAGRL 全量规则注入路径在 50+ 规则规模下延迟与 token 开销仍 < 1s/动作 + < 20% context budget | [low] [19] | 7 条规则下 0.65s/动作；线性外推 50 条达 ~5s——若实测如此，必须改 retrieval-based 规则注入 |
 | F21 | PAGRL "内化 normative generalization" 优势在 BKN 规则集 + 真实对抗 benchmark（HarmBench）上重现 | [low] [19] | 仅 N=1 的 Scenario 3 支撑该核心差异化主张；对抗 benchmark 上 PAGRL 不优于 AgentSpec 类外部强制 |
 | F22 | [19] PAGRL + [18] Governed Memory + [10] Collaborative Memory 三层叠加在统一 ISF/TraceAI 实现中保持架构一致 | [low] 推断 | 三套 trace schema / 三套 governance variable 不能融合到统一 BKN 表达——则"治理统一基础设施"论点需重新评估 |
+| F23 | 主动需求预测不是 cron + ReAct 可平凡解决的（"学术稀缺 = 机会窗口"被反向修订）| [med] [20] | Undirected Idle（≈ 朴素 cron + ReAct 背景探索）花 69.8k token 仅得 ~1% 增益 vs Directed 14.8%——若复测发现朴素 baseline 已满足 ≥50% 真实主动需求，则"预测方向"非必要 |
+| F24 | ProAct 式 idle 预测在 Decision Agent 真实（非合成、无 predictable_after 标注）业务对话上 Anticipation Recall 显著 > 0 | [low] [20] | 真实对话可预测性远低于 ProActEval 构造，Recall 接近 Undirected Idle 水平——则 111.8k token/场景成本无法在企业场景被价值证成 |
+| F25 | 治理边界内"有限主动预测"（store-only + 显式调度来源 + prediction-guided）能保留 ProAct 多数增益 | [low] 推断 / [20] | 去掉 push 自主性后 User Effort 改善 < Directed Idle 的一半——则"治理边界 vs 主动收益"存在不可调和取舍，goal 2 需重估 |
+| F26 | Composer 团队选择须同时约束 relevance + diversity（仅去重不足）；AgentInit 的"精选子集 > 全量 agent"在企业 5k–10k + BKN 类型化召回下仍成立 | [med] [21] | (a) 若 BKN 类型化召回在 Composer 团队选择上不优于 AgentInit 无类型 embedding relevance，则 BKN 解耦在此场景无增量；(b) 若 diversity 约束在企业长链任务上无增益（AgentInit 仅 9/10 单轮 QA 验证）；(c) 枚举式 Pareto 在 5k–10k 实体规模无可行精确/近似解——则该选择算法不可直接采用，须退回 BKN 预过滤 |
 
 ---
 
-## 工程问题地图（v17）
+## 工程问题地图（v19）
 
 ```
 Decision Agent 工程问题地图
@@ -324,11 +352,17 @@ LAYER 2: Goal 2 — Heartbeat + Cron
   │ Q2a: ISF 结构性张力如何解决？                    │
   │   → Cron 触发须有显式来源 ✓ 设计决策            │
   │   → PAGRL ESCALATE 通路 [19] ✓ 工程模板         │
+  │   → {push/queue/store} 三态治理分轨 [20] ✓ 候选  │
   │   → Tick 上限频率规格 ✗ 未量化                  │
   │ Q2b: Heartbeat 与长时任务检查点如何对齐？         │
   │   → 未测量 ✗                                     │
   │ Q2c: intrinsic goal 进入生产路径的拦截？         │
   │   → PAGRL Stage 3 识别 + ESCALATE [19] ✓ 候选   │
+  │   → ProAct"自主推断"须改 cron/授权派生 [20] ✓   │
+  │ Q2d: 主动需求预测机制（被严格评测）？            │
+  │   → ProAct Future-State Prediction +            │
+  │     value gate + 双消融 [20] ✓ 有原型           │
+  │   → 真实业务对话 Recall / token 成本 ✗ 未验证   │
   └─────────────────────────────────────────────────┘
 
 LAYER 3: Goal 3 — Shared Workspace
@@ -357,6 +391,10 @@ LAYER 4: Goal 4 — Composer
   │   → 层次 vs 完全图准则 [2] ✓ 有启发式            │
   │ Q4e: 工具调用错误传播隔离？                      │
   │   → 27.4% 失败 [6] ✗ Composer 未覆盖            │
+  │ Q4f: 团队选择算法？                              │
+  │   → Knapsack 硬约束 + sandbox [12] /            │
+  │     Pareto relevance+diversity [21] ✓ 两基线    │
+  │   → 5k+ 规模 + BKN 类型化召回 ✗ 未验证 (F26)    │
   └─────────────────────────────────────────────────┘
 
 LAYER 5: Goal 5 — 跨会话层级化 Memory
@@ -425,3 +463,5 @@ LAYER 6: 横切面 — 治理基础设施 (ISF + TraceAI)
 | v15 | [17] FadeMem 重要性调制衰减 + LLM 仲裁冲突 + 适应性融合；填补 v14 Q5c/Q5d/Q5e 三个文献空白；新增 F11–F14 falsifiability + Q5g/Q5h 工程债务 | Goal 5 第三维度证据 |
 | v16 | [18] Governed Memory 组织级治理 + dual modality + 分级路由 + progressive delivery + schema lifecycle；goal 5 第四维度证据；Goal 4 governance routing 作为 ContextLoader 延伸；揭示 multi-agent concurrent write conflict 为 goal 3+5 合并区头号研究空白；新增 F15–F18 falsifiability + Q5i/Q5j 工程债务 | Goal 5 第四维度证据 + Goal 4 ContextLoader 扩展 |
 | v17 | [19] PAGRL 4 阶段 deliberation + 4 层级联规则 + 3 条 escalation 触发；与 [18] 同作者群配套形成"动作层 + 记忆层"治理参考架构；新增"横切面 — 治理基础设施 (ISF + TraceAI)"独立段落；为 goal 2 governance-aware bounded autonomy 提供工程模板（Q2a/Q2c）；为 goal 3 β/β_r 路由提供形式化判据（Q3e）；揭示张力 C（内化 deliberation vs 外部确定性强制）必须双层叠加；新增 F19–F22 falsifiability + LAYER 6 治理基础设施工程问题地图 | 横切面治理基础设施 + Goal 2/3 工程模板 |
+| v18 | [20] ProAct idle-time compute 主动预测 + value gate + 三态 delivery + ProActEval 双消融；goal 2 首份被严格评测的主动 Runtime（补齐 [8] HSC 空白）；揭示增益来自"预测方向"而非"后台搜索本身"，反向修订"学术稀缺=机会窗口"；定位 ProAct 为"未治理主动端"+ 治理改造路径（store-only + 显式调度 + push 经 PAGRL ESCALATE）；OpenClaw 边界增加触发自主性轴；goal 5 memory-gap augmentation 补全双向 lifecycle 主动写入端；新增 F23–F25 falsifiability + Q2a/Q2c/Q2d 工程地图更新 | Goal 2 主动 Runtime 证据 + Goal 5 lifecycle 补全 |
+| v19 | [21] AgentInit init-time 团队选择（标准化候选生成 + Pareto relevance/diversity + Selector）；为 goal 4 Composer 提供第二条团队选择算法基线（vs [12] knapsack 硬约束）；None/Random 消融证明增益来自选择策略而非缩规模，与 [4]/[6] 形成"更小经选择 team"三角；指出嵌入式 relevance（无类型）须换 BKN 类型化召回、枚举式 Pareto 须保留预过滤回退；更新可证伪点"Composer 已有能力优先 + 半自动"为 [med]；新增 F26 + Q4f 工程地图项 | Goal 4 团队选择算法证据 |
