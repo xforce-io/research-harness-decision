@@ -26,10 +26,11 @@ Decision agent 是一种通过 multi-agent workers team 协同完成任务的决
 | [18](notes/18_governed_memory_a_production_architecture_for.md) | Governed Memory: A Production Architecture for Multi-Agent Workflows | Memory / Org-Level Governed Memory & Schema Lifecycle | high | ✅ deep-read |
 | [19](notes/19_think_before_you_act_a_neurocognitive.md) | Think Before You Act — A Neurocognitive Governance Model for Autonomous AI Agents | Governance / Pre-Action Action-Level Deliberation | high | ✅ deep-read |
 | [20](notes/20_anticipate_and_learn_unleashing_idle_time.md) | Anticipate and Learn: Unleashing Idle-Time Compute in Proactive Agents | Runtime / Prediction-Guided Idle-Time Compute | high | ✅ deep-read |
+| [21](notes/21_agentinit_initializing_llm_based_multi_agent.md) | AgentInit: Initializing LLM-based Multi-Agent Systems via Diversity and Expertise Orchestration | Composer / Init-Time Multi-Objective Team Selection | high | ✅ deep-read |
 
 ## Thesis
 
-Decision Agent 是"治理优先、Harness-first 的企业级决策智能体底座"，5 个 0.8 design goals 须被设计为有治理边界的有限主动模式（goal 2 与 ISF 结构性张力、goal 3/4 须按"内部信息处理 vs 外部副作用"分轨），治理基础设施由 [19] PAGRL（动作层）+ [18] Governed Memory（记忆层）构成首份参考架构骨架但须以 AgentSpec 类外部强制层兜底。BKN 语义解耦获 [5][7][11][13] 四条证据线支持，goal 5 Memory 工程蓝图由 [10]+[16]+[17]+[18] 四层堆叠构成。goal 2 主动 Runtime 由 [20] ProAct 提供首份被严格评测的机制骨架，但其"自主推断未发声需求"落在 thesis 拒绝的未治理主动端，须改造为 store-only + 显式调度来源 + push 必经 PAGRL ESCALATE。可证伪：若 PAGRL ESCALATE 漏报率 > 10%、BKN + 通用 embedding 在 5k+ 规模 Recall@10 ≥ 50%、或真实业务对话 Anticipation Recall 接近 Undirected Idle 水平，则核心假设需修订。
+Decision Agent 是"治理优先、Harness-first 的企业级决策智能体底座"，5 个 0.8 design goals 须被设计为有治理边界的有限主动模式（goal 2 与 ISF 张力、goal 3/4 按"内部处理 vs 外部副作用"分轨），治理底座由 [19] PAGRL（动作层）+ [18] Governed Memory（记忆层）构成参考骨架但须以 AgentSpec 类外部强制兜底。BKN 语义解耦获 [5][7][11][13] 四条证据线支持，goal 5 Memory 蓝图由 [10]+[16]+[17]+[18] 四层堆叠；goal 2 主动 Runtime 由 [20] ProAct 提供机制骨架但须改造为 store-only + 显式调度来源 + push 经 PAGRL ESCALATE。goal 4 Composer 的团队选择获 [12] knapsack 与 [21] AgentInit Pareto 两条 init/装配期算法基线，但二者枚举/嵌入度量均须换为 BKN 类型化召回 + 预过滤回退方可上企业规模。可证伪：若 PAGRL ESCALATE 漏报率 > 10%、BKN + 通用 embedding 在 5k+ 规模 Recall@10 ≥ 50%、或真实业务对话 Anticipation Recall 接近 Undirected Idle 水平，则核心假设需修订。
 
 See [`.researcher/thesis.md`](.researcher/thesis.md) for the full working thesis.
 
@@ -38,4 +39,4 @@ See [`.researcher/thesis.md`](.researcher/thesis.md) for the full working thesis
 - [`notes/00_research_landscape.md`](notes/00_research_landscape.md) — living synthesis of all read papers
 - [`.researcher/thesis.md`](.researcher/thesis.md) — working thesis and research posture
 
-*Last Updated: 2026-06-02 (v18)*
+*Last Updated: 2026-06-04 (v19)*
