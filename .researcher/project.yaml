@@ -3,6 +3,7 @@
 
 meta:
   topic_oneline: "Decision Agent —— 治理优先、Harness-first 的企业级决策智能体底座（BKN+ISF+TraceAI+ContextLoader），通过 5 个增强能力（开箱即用 / Heartbeat+Cron 常驻 / Shared Workspace / Composer 多智能体组合 / 跨会话层级化 Memory）从被动响应模式演进到企业生产级多智能体系统。OpenClaw 是治理深度更轻的并列形态，Decision Agent 可独立闭环。"
+  language: zh            # output language for all agent prose: zh=简体中文 / en=English
 
 research_questions:
   - id: RQ1
